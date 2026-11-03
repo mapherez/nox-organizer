@@ -1,6 +1,6 @@
 services:
   nox-organizer:
-    build: .
+    image: ghcr.io/mapherez/nox-organizer:latest
     container_name: nox-organizer
     ports:
       - "3000:3000"
