@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Kind {
+  project
+  idea
+}
+
+enum Status {
+  backlog
+  queued
+  in_progress
+  done
+  dropped
+}
+
+model Item {
+  id              String       @id @default(cuid())
+  kind            Kind
+  title           String
+  description     String?
+  status          Status       @default(backlog)
+  position        Float?
+  linkedProjectId String?
+  linkedProject   Item?        @relation("IdeaLink", fields: [linkedProjectId], references: [id])
+  linkedIdeas     Item[]       @relation("IdeaLink")
+  dependsOn       Dependency[] @relation("DependentItem")
+  blocks          Dependency[] @relation("PrerequisiteItem")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([status, position])
+}
+
+model Dependency {
+  id             String   @id @default(cuid())
+  itemId         String
+  prerequisiteId String
+  item           Item     @relation("DependentItem", fields: [itemId], references: [id])
+  prerequisite   Item     @relation("PrerequisiteItem", fields: [prerequisiteId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@unique([itemId, prerequisiteId])
+  @@index([prerequisiteId])
+}

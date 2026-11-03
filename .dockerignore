@@ -1,0 +1,15 @@
+.git
+.gitignore
+node_modules
+.next
+data
+*.log
+.DS_Store
+.env
+.env.*
+AGENTS.md
+IMPLEMENTATION_PLAN.md
+.claude
+.windsurf
+.agents
+skills-lock.json
