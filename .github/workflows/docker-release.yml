@@ -1,7 +1,8 @@
 name: Docker release
 
 # Manual: Actions tab -> "Docker release" -> Run workflow.
-# Builds the Docker image and pushes it to GHCR as ghcr.io/<owner>/<repo>
+# Builds multi-arch (linux/amd64 + linux/arm64) Docker images and pushes
+# them to GHCR as ghcr.io/<owner>/<repo>
 # (e.g. ghcr.io/mapherez/nox-organizer), tagged latest + git sha, plus an
 # optional version tag from the workflow input.
 on:
@@ -45,10 +46,14 @@ jobs:
             type=sha
             type=raw,value=${{ inputs.version }},enable=${{ inputs.version != '' }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
