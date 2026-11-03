@@ -61,8 +61,30 @@ re-running `npx prisma migrate deploy`.
 | `npm run build`           | Production build                                       |
 | `npm run start`           | Serve the production build                             |
 | `npm run lint`            | ESLint                                                 |
-| `npx tsx scripts/test-domain.ts`   | Unit tests for the pure domain logic (transitions, cycle detection, ready/blocked, ordering) |
-| `npx tsx scripts/e2e-smoke.ts`     | Playwright smoke test covering the acceptance criteria (needs the dev server running) |
+| `npm run test:domain`     | Unit tests for the pure domain logic (transitions, cycle detection, ready/blocked, ordering) |
+| `npm run test:e2e`        | Playwright smoke test covering the acceptance criteria (needs the dev server running and a fresh DB) |
+| `npm run db:deploy`       | Apply database migrations (`prisma migrate deploy`)    |
+
+## GitHub Actions
+
+Two workflows in `.github/workflows/`:
+
+- **CI** (`ci.yml`) — runs automatically on every push to `main` and on pull
+  requests: lint, type-check, domain tests, production build, and the Playwright
+  e2e smoke test against a fresh database.
+- **Docker release** (`docker-release.yml`) — run manually from the
+  [Actions tab](https://github.com/mapherez/nox-organizer/actions/workflows/docker-release.yml)
+  ("Docker release" → "Run workflow"). Builds the image and pushes it to
+  [GHCR](https://ghcr.io) as `ghcr.io/mapherez/nox-organizer`, tagged `latest`
+  and with the git SHA (plus an optional version tag from the workflow input).
+  No secrets are needed — the default `GITHUB_TOKEN` has `packages: write`.
+
+To run the released image:
+
+```bash
+docker pull ghcr.io/mapherez/nox-organizer:latest
+docker run -d -p 3000:3000 --name nox-organizer -v nox-data:/data ghcr.io/mapherez/nox-organizer:latest
+```
 
 ## Docker
 
